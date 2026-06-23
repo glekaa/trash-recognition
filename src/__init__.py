@@ -1,0 +1,1 @@
+# trash-recognition src package
