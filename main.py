@@ -61,9 +61,17 @@ def main():
     evaluator = ModelEvaluator(loader.get_class_names())
     results = evaluator.evaluate(trainer)
 
+    import joblib
+    joblib.dump(trainer.scaler, OUTPUT_DIR / "scaler.joblib")
+    if 'Random Forest' in trainer.models:
+        joblib.dump(trainer.models['Random Forest'], OUTPUT_DIR / "random_forest_model.joblib")
+    if 'SVM' in trainer.models:
+        joblib.dump(trainer.models['SVM'], OUTPUT_DIR / "svm_model.joblib")
+
     if not args.skip_cnn:
         print("\n[BONUS] Training CNN (MobileNetV2)...")
         try:
+            import torch
             from src.cnn_classifier import CNNClassifier
             from sklearn.model_selection import train_test_split
             from src.utils import RANDOM_STATE
@@ -75,6 +83,9 @@ def main():
 
             cnn = CNNClassifier(epochs=5, batch_size=32)
             cnn.fit(train_imgs, train_lbls)
+
+            # Save PyTorch Model
+            torch.save(cnn.model.state_dict(), OUTPUT_DIR / "mobilenetv2.pth")
 
             y_pred_cnn = cnn.predict(test_imgs)
             y_proba_cnn = cnn.predict_proba(test_imgs)
@@ -108,3 +119,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
