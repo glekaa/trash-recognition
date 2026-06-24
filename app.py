@@ -14,14 +14,17 @@ app = FastAPI(title="Trash Recognition API")
 
 # Path definitions
 scaler_path = OUTPUT_DIR / "scaler.joblib"
-rf_path = OUTPUT_DIR / "random_forest_model.joblib"
-svm_path = OUTPUT_DIR / "svm_model.joblib"
 cnn_path = OUTPUT_DIR / "mobilenetv2.pth"
 
-# Load models at startup to keep endpoint fast
+# Load scaler
 scaler = joblib.load(scaler_path) if scaler_path.exists() else None
-rf_model = joblib.load(rf_path) if rf_path.exists() else None
-svm_model = joblib.load(svm_path) if svm_path.exists() else None
+
+# Load traditional models dynamically
+traditional_models = {}
+for name in ["random_forest", "svm", "knn", "gradient_boosting"]:
+    model_path = OUTPUT_DIR / f"{name}_model.joblib"
+    if model_path.exists():
+        traditional_models[name] = joblib.load(model_path)
 
 # Load PyTorch model if it exists
 cnn = None
@@ -44,7 +47,7 @@ def preprocess_image(image_bytes, target_size):
 @app.post("/predict")
 async def predict(
     file: UploadFile = File(...),
-    model: str = Query("cnn", enum=["cnn", "random_forest", "svm"])
+    model: str = Query("cnn", enum=["cnn", "random_forest", "svm", "knn", "gradient_boosting"])
 ):
     try:
         contents = await file.read()
@@ -66,7 +69,7 @@ async def predict(
             probabilities = {CLASSES[i]: float(probs[i]) for i in range(len(CLASSES))}
 
         else:
-            clf = rf_model if model == "random_forest" else svm_model
+            clf = traditional_models.get(model)
             if clf is None or scaler is None:
                 return JSONResponse(status_code=500, content={"error": f"{model} model or scaler not found."})
 
@@ -97,12 +100,11 @@ async def predict(
 
 @app.get("/health")
 def health():
+    models_loaded = {name: name in traditional_models for name in ["random_forest", "svm", "knn", "gradient_boosting"]}
+    models_loaded["cnn"] = cnn is not None
+    models_loaded["scaler"] = scaler is not None
+
     return {
         "status": "healthy",
-        "models_loaded": {
-            "cnn": cnn is not None,
-            "random_forest": rf_model is not None,
-            "svm": svm_model is not None,
-            "scaler": scaler is not None
-        }
+        "models_loaded": models_loaded
     }

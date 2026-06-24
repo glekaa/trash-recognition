@@ -63,10 +63,10 @@ def main():
 
     import joblib
     joblib.dump(trainer.scaler, OUTPUT_DIR / "scaler.joblib")
-    if 'Random Forest' in trainer.models:
-        joblib.dump(trainer.models['Random Forest'], OUTPUT_DIR / "random_forest_model.joblib")
-    if 'SVM' in trainer.models:
-        joblib.dump(trainer.models['SVM'], OUTPUT_DIR / "svm_model.joblib")
+    for name, model in trainer.models.items():
+        filename = f"{name.replace(' ', '_').lower()}_model.joblib"
+        joblib.dump(model, OUTPUT_DIR / filename)
+
 
     if not args.skip_cnn:
         print("\n[BONUS] Training CNN (MobileNetV2)...")

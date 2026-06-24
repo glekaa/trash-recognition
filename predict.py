@@ -105,7 +105,7 @@ def main():
         "--model",
         type=str,
         default="cnn",
-        choices=["cnn", "random_forest", "svm"],
+        choices=["cnn", "random_forest", "svm", "knn", "gradient_boosting"],
         help="Classifier model to use (default: cnn)",
     )
     args = parser.parse_args()
