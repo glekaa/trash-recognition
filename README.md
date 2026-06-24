@@ -55,10 +55,12 @@ Use the CNN Model (Default):
 uv run python predict.py /path/to/your/image.jpg
 ```
 
-Use a Traditional Model (e.g. Random Forest or SVM):
+Use any Traditional ML Model:
 ```bash
 uv run python predict.py /path/to/your/image.jpg --model random_forest
 uv run python predict.py /path/to/your/image.jpg --model svm
+uv run python predict.py /path/to/your/image.jpg --model knn
+uv run python predict.py /path/to/your/image.jpg --model gradient_boosting
 ```
 
 ### 3. Deploy prediction API (FastAPI)
@@ -69,10 +71,12 @@ Start the FastAPI local development server:
 uv run uvicorn app:app --reload
 ```
 
-Use `curl` to send a POST request with an image file:
+Use `curl` to send a POST request with an image file, specifying the model in the query parameter (choices: `cnn`, `random_forest`, `svm`, `knn`, `gradient_boosting`):
 ```bash
 curl -X POST "http://127.0.0.1:8000/predict?model=cnn" -F "file=@sample-glass.jpg"
+curl -X POST "http://127.0.0.1:8000/predict?model=gradient_boosting" -F "file=@sample-glass.jpg"
 ```
+
 
 ### 4. Run Unit Tests
 ```bash
