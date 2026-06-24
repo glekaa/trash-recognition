@@ -61,10 +61,24 @@ uv run python predict.py /path/to/your/image.jpg --model random_forest
 uv run python predict.py /path/to/your/image.jpg --model svm
 ```
 
-### 3. Run Unit Tests
+### 3. Deploy prediction API (FastAPI)
+You can deploy a lightweight HTTP API to serve predictions.
+
+Start the FastAPI local development server:
+```bash
+uv run uvicorn app:app --reload
+```
+
+Use `curl` to send a POST request with an image file:
+```bash
+curl -X POST "http://127.0.0.1:8000/predict?model=cnn" -F "file=@sample-glass.jpg"
+```
+
+### 4. Run Unit Tests
 ```bash
 uv run pytest
 ```
+
 
 
 ---
