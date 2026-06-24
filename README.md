@@ -47,10 +47,25 @@ Arguments:
 - `--tune`: Performs hyperparameter optimization using GridSearchCV.
 - `--test-size`: Size of the test set (default `0.2`).
 
-### 2. Run Unit Tests
+### 2. Classify a New Image (Inference)
+Once the pipeline has completed training, you can classify any new, individual image using `predict.py`.
+
+Use the CNN Model (Default):
+```bash
+uv run python predict.py /path/to/your/image.jpg
+```
+
+Use a Traditional Model (e.g. Random Forest or SVM):
+```bash
+uv run python predict.py /path/to/your/image.jpg --model random_forest
+uv run python predict.py /path/to/your/image.jpg --model svm
+```
+
+### 3. Run Unit Tests
 ```bash
 uv run pytest
 ```
+
 
 ---
 
